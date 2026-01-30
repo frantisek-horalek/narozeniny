@@ -78,15 +78,15 @@
     const totalEl = document.getElementById('total');
     const qrBox = document.getElementById('qr-box');
     const qrImg = document.getElementById('qr-img');
+    
+    // IBAN musí být pro API bez mezer
     const IBAN = "CZ1162106701002200364123";
+    const MSG = "Narozeniny";
 
-    // Reakce na kliknutí
     zones.forEach(zone => {
         zone.onclick = function() {
-            // Přepne třídu selected
             this.classList.toggle('selected');
             
-            // Přepočítá sumu
             let sum = 0;
             document.querySelectorAll('.zone.selected').forEach(s => {
                 sum += parseInt(s.getAttribute('data-price'));
@@ -94,12 +94,19 @@
 
             totalEl.innerText = sum;
 
-            // Aktualizuje QR kód
             if (sum > 0) {
-                qrImg.src = `https://api.paylibo.com/paylibo/generator/czech/image?accountNumber=${IBAN}&amount=${sum}&currency=CZK&message=Narozeniny`;
-                qrBox.style.display = 'block';
+                // API vyžaduje URL kódování pro zprávu a IBAN bez mezer
+                const encodedMsg = encodeURIComponent(MSG);
+                const qrUrl = `https://api.paylibo.com/paylibo/generator/czech/image?accountNumber=${IBAN}&amount=${sum}&currency=CZK&message=${encodedMsg}`;
+                
+                // Nastavíme zdroj a zobrazíme box až ve chvíli, kdy je obrázek načten
+                qrImg.onload = function() {
+                    qrBox.style.display = 'block';
+                };
+                qrImg.src = qrUrl;
             } else {
                 qrBox.style.display = 'none';
+                qrImg.src = "";
             }
         };
     });

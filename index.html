@@ -2,68 +2,108 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <title>Fanatec Birthday Gift</title>
+    <title>Fanatec Birthday</title>
     <style>
-        body { font-family: sans-serif; background: #121212; color: white; text-align: center; }
-        .wrapper { max-width: 800px; margin: 20px auto; padding: 20px; background: #1e1e1e; border-radius: 20px; }
+        body { font-family: sans-serif; background: #1a1a1a; color: white; text-align: center; margin: 0; padding: 20px; }
+        .main-card { max-width: 800px; margin: auto; background: #262626; padding: 20px; border-radius: 15px; }
         
-        /* KLÍČOVÉ: Kontejner pro SVG a obrázek */
-        .gift-container {
-            position: relative;
+        /* KONTEJNER PRO OBRÁZEK A ZÓNY */
+        .gift-wrapper {
+            position: relative; /* Zásadní pro pozicování zón */
+            display: inline-block;
             width: 100%;
+            max-width: 100%;
             line-height: 0;
-            border: 2px solid #333;
-            border-radius: 10px;
-            overflow: hidden;
         }
 
-        svg {
+        .gift-image {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        /* STYL KLIKACÍCH ZÓN */
+        .zone {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 10; /* Musí být nad obrázkem */
-        }
-
-        img { width: 100%; height: auto; z-index: 1; }
-
-        /* Styl oblastí */
-        .clickable-zone {
-            fill: rgba(255, 0, 0, 0.4); /* Červená = k dispozici */
-            stroke: white;
-            stroke-width: 2;
+            box-sizing: border-box;
+            border: 2px solid rgba(255, 0, 0, 0.5); /* Červený okraj pro ladění */
+            background: rgba(255, 0, 0, 0.1);
             cursor: pointer;
-            transition: 0.2s;
+            z-index: 100;
+            transition: 0.3s;
         }
 
-        .clickable-zone.selected {
-            fill: rgba(0, 255, 0, 0.6) !important; /* Zelená = vybráno */
-            stroke: #00ff00;
+        /* STYL VYBRANÉ ZÓNY */
+        .zone.selected {
+            border-color: #00ff00;
+            background: rgba(0, 255, 0, 0.3);
         }
 
-        .price-tag { font-size: 3em; color: #00ff00; margin: 20px 0; font-weight: bold; }
-        #qr-display { background: white; padding: 10px; display: none; margin: 20px auto; border-radius: 10px; }
+        .price-display { font-size: 3em; color: #00ff00; margin: 20px 0; }
+        #qr-box { background: white; padding: 10px; border-radius: 10px; display: none; margin: 20px auto; max-width: 200px; }
+        .footer { color: #888; font-size: 0.9em; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="wrapper">
-    <h1>Podpoř můj Fanatec sen! 🏎️</h1>
-    <p>Klikni na červené zóny (zezelenají) a vygeneruje se ti QR platba.</p>
+<div class="main-card">
+    <h2>Vyber mi část dárku! 🏎️</h2>
+    
+    <div class="gift-wrapper">
+        <img src="obrazek.jpg" class="gift-image" alt="Dárek">
 
-    <div class="gift-container">
-        <img src="obrazek.jpg" alt="Fanatec Gift">
+        <div class="zone" data-price="500" style="top: 20%; left: 42%; width: 25%; height: 40%;"></div>
         
-        <svg viewBox="0 0 1000 667" id="gift-svg">
-            <circle class="clickable-zone" cx="530" cy="350" r="150" data-price="500" />
-            
-            <rect class="clickable-zone" x="100" y="450" width="350" height="200" data-price="300" />
-            
-            <rect class="clickable-zone" x="600" y="300" width="300" height="250" data-price="400" />
-            
-            <rect class="clickable-zone" x="700" y="550" width="200" height="100" data-price="100" />
-        </svg>
+        <div class="zone" data-price="300" style="top: 60%; left: 15%; width: 30%; height: 30%;"></div>
+        
+        <div class="zone" data-price="400" style="top: 35%; left: 65%; width: 25%; height: 35%;"></div>
+        
+        <div class="zone" data-price="100" style="top: 30%; left: 45%; width: 5%; height: 10%;"></div>
     </div>
 
-    <div class="price-tag"><span id="total-price">0</span> Kč</div>
+    <div class="price-display"><span id="total">0</span> Kč</div>
     
-    <img id="qr-display
+    <div id="qr-box">
+        <img id="qr-img" src="" alt="QR Platba" style="width: 100%;">
+    </div>
+
+    <div class="footer">
+        Účet: CZ11 6210 6701 0022 0036 4123<br>
+        Zpráva pro příjemce: Narozeniny
+    </div>
+</div>
+
+<script>
+    const zones = document.querySelectorAll('.zone');
+    const totalEl = document.getElementById('total');
+    const qrBox = document.getElementById('qr-box');
+    const qrImg = document.getElementById('qr-img');
+    const IBAN = "CZ1162106701002200364123";
+
+    // Reakce na kliknutí
+    zones.forEach(zone => {
+        zone.onclick = function() {
+            // Přepne třídu selected
+            this.classList.toggle('selected');
+            
+            // Přepočítá sumu
+            let sum = 0;
+            document.querySelectorAll('.zone.selected').forEach(s => {
+                sum += parseInt(s.getAttribute('data-price'));
+            });
+
+            totalEl.innerText = sum;
+
+            // Aktualizuje QR kód
+            if (sum > 0) {
+                qrImg.src = `https://api.paylibo.com/paylibo/generator/czech/image?accountNumber=${IBAN}&amount=${sum}&currency=CZK&message=Narozeniny`;
+                qrBox.style.display = 'block';
+            } else {
+                qrBox.style.display = 'none';
+            }
+        };
+    });
+</script>
+
+</body>
+</html>

@@ -2,59 +2,68 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dárek pro mě!</title>
+    <title>Fanatec Birthday Gift</title>
     <style>
-        body { font-family: sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: #2d2d2d; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        body { font-family: sans-serif; background: #121212; color: white; text-align: center; }
+        .wrapper { max-width: 800px; margin: 20px auto; padding: 20px; background: #1e1e1e; border-radius: 20px; }
         
-        .svg-box { position: relative; width: 100%; border: 1px solid #444; border-radius: 10px; overflow: hidden; background: #000; }
-        svg { width: 100%; height: auto; display: block; }
+        /* KLÍČOVÉ: Kontejner pro SVG a obrázek */
+        .gift-container {
+            position: relative;
+            width: 100%;
+            line-height: 0;
+            border: 2px solid #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        svg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 10; /* Musí být nad obrázkem */
+        }
+
+        img { width: 100%; height: auto; z-index: 1; }
 
         /* Styl oblastí */
-        .area {
-            fill: rgba(255, 0, 0, 0.3); /* ČERVENÁ - zatím nevybráno */
-            stroke: red;
-            stroke-width: 1;
+        .clickable-zone {
+            fill: rgba(255, 0, 0, 0.4); /* Červená = k dispozici */
+            stroke: white;
+            stroke-width: 2;
             cursor: pointer;
-            pointer-events: all; /* Zajišťuje, že oblast zachytí kliknutí */
-            transition: 0.3s;
+            transition: 0.2s;
         }
-        
-        /* Styl po kliknutí */
-        .area.active {
-            fill: rgba(0, 255, 0, 0.4) !important; /* ZELENÁ - vybráno */
+
+        .clickable-zone.selected {
+            fill: rgba(0, 255, 0, 0.6) !important; /* Zelená = vybráno */
             stroke: #00ff00;
-            stroke-width: 3;
         }
 
-        .info-panel { margin-top: 20px; padding: 20px; background: #3d3d3d; border-radius: 15px; }
-        .total-amount { font-size: 2.5em; font-weight: bold; color: #00ff00; margin: 10px 0; }
-        
-        #qr-code { 
-            background: white; 
-            padding: 10px; 
-            border-radius: 10px; 
-            margin-top: 15px; 
-            display: none; 
-            margin-left: auto; 
-            margin-right: auto;
-            max-width: 220px;
-        }
-
-        .details { font-size: 0.9em; color: #aaa; margin-top: 15px; }
+        .price-tag { font-size: 3em; color: #00ff00; margin: 20px 0; font-weight: bold; }
+        #qr-display { background: white; padding: 10px; display: none; margin: 20px auto; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Můj narozeninový Fanatec 🏁</h2>
-    <p>Klikni na části, na které mi chceš přispět:</p>
+<div class="wrapper">
+    <h1>Podpoř můj Fanatec sen! 🏎️</h1>
+    <p>Klikni na červené zóny (zezelenají) a vygeneruje se ti QR platba.</p>
 
-    <div class="svg-box">
+    <div class="gift-container">
+        <img src="obrazek.jpg" alt="Fanatec Gift">
+        
         <svg viewBox="0 0 1000 667" id="gift-svg">
-            <image href="obrazek.jpg" x="0" y="0" width="1000" height="667" />
+            <circle class="clickable-zone" cx="530" cy="350" r="150" data-price="500" />
             
-            <path class="area" data-price="500" data-name="Volant" d="M 450,150 L 650,150 L 650,550 L 450,550 Z" />
-            <path class="area" data-price="300" data-name="Pedály" d="M 150,450 L 450,450 L 550,650 L 50,650 Z" />
-            <path class="area" data-price="400" data-name="Základna" d
+            <rect class="clickable-zone" x="100" y="450" width="350" height="200" data-price="300" />
+            
+            <rect class="clickable-zone" x="600" y="300" width="300" height="250" data-price="400" />
+            
+            <rect class="clickable-zone" x="700" y="550" width="200" height="100" data-price="100" />
+        </svg>
+    </div>
+
+    <div class="price-tag"><span id="total-price">0</span> Kč</div>
+    
+    <img id="qr-display

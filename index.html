@@ -63,13 +63,19 @@
 
     <div class="price-display"><span id="total">0</span> Kč</div>
     
-    <div id="qr-box">
-        <img id="qr-img" src="" alt="QR Platba" style="width: 100%;">
+<div id="qr-box" style="display: none; background: white; padding: 15px; border-radius: 10px; margin: 20px auto; max-width: 250px;">
+        <img id="qr-img" src="" alt="QR Platba" style="width: 100%; height: auto; border: 1px solid #eee;">
+        
+        <div style="margin-top: 10px;">
+            <a id="qr-link" href="#" target="_blank" style="color: #007bff; font-size: 0.8em; text-decoration: underline;">
+                Nedaří se načíst QR? Klikni sem.
+            </a>
+        </div>
     </div>
 
     <div class="footer">
-        Účet: CZ11 6210 6701 0022 0036 4123<br>
-        Zpráva pro příjemce: Narozeniny
+        Účet: <strong>CZ11 6210 6701 0022 0036 4123</strong><br>
+        Zpráva: <strong>Narozeniny</strong>
     </div>
 </div>
 
@@ -78,8 +84,9 @@
     const totalEl = document.getElementById('total');
     const qrBox = document.getElementById('qr-box');
     const qrImg = document.getElementById('qr-img');
+    const qrLink = document.getElementById('qr-link');
     
-    // IBAN musí být pro API bez mezer
+    // Čistý IBAN bez mezer
     const IBAN = "CZ1162106701002200364123";
     const MSG = "Narozeniny";
 
@@ -95,18 +102,20 @@
             totalEl.innerText = sum;
 
             if (sum > 0) {
-                // API vyžaduje URL kódování pro zprávu a IBAN bez mezer
                 const encodedMsg = encodeURIComponent(MSG);
-                const qrUrl = `https://api.paylibo.com/paylibo/generator/czech/image?accountNumber=${IBAN}&amount=${sum}&currency=CZK&message=${encodedMsg}`;
                 
-                // Nastavíme zdroj a zobrazíme box až ve chvíli, kdy je obrázek načten
-                qrImg.onload = function() {
-                    qrBox.style.display = 'block';
-                };
+                // ZMĚNA API: Nyní používáme qr-platba.cz (standard pro ČR)
+                const qrUrl = `https://api.qr-platba.cz/pro/1.0/image.png?iban=${IBAN}&amount=${sum}&currency=CZK&message=${encodedMsg}`;
+                
+                // Nastavíme src a zobrazíme box
                 qrImg.src = qrUrl;
+                qrLink.href = qrUrl;
+                qrBox.style.display = 'block';
+
+                // Kontrola do konzole (F12), zda se URL generuje správně
+                console.log("Generuji QR: " + qrUrl);
             } else {
                 qrBox.style.display = 'none';
-                qrImg.src = "";
             }
         };
     });

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dárek k narozeninám</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f9; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 500px; text-align: center; }
+        img { max-width: 100%; border-radius: 10px; margin-bottom: 20px; }
+        .items { text-align: left; margin: 20px 0; }
+        .item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .item:hover { background: #f9f9f9; }
+        .total { font-size: 1.5em; font-weight: bold; margin: 20px 0; color: #2c3e50; }
+        #qr-container { margin-top: 20px; min-height: 250px; }
+        #qr-code { max-width: 250px; display: none; margin: 0 auto; }
+        .iban-info { font-size: 0.8em; color: #666; margin-top: 10px; word-break: break-all; }
+        input[type="checkbox"] { transform: scale(1.5); }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Příspěvek na Fanatec set 🏎️</h2>
+    <p>Vyber si, kterou část mi chceš "koupit", a aplikace ti vygeneruje QR platbu.</p>
+    
+    <img src="obrazek.jpg" alt="Fanatec Gift">
+
+    <div class="items">
+        <label class="item"><input type="checkbox" class="part" data-price="500"> <span>Volant GT3 (500 Kč)</span></label>
+        <label class="item"><input type="checkbox" class="part" data-price="400"> <span>Základna Direct Drive (400 Kč)</span></label>
+        <label class="item"><input type="checkbox" class="part" data-price="300"> <span>Sada pedálů (300 Kč)</span></label>
+        <label class="item"><input type="checkbox" class="part" data-price="200"> <span>Tlačítka a pádla (200 Kč)</span></label>
+        <label class="item"><input type="checkbox" class="part" data-price="100"> <span>Stolní svorka (100 Kč)</span></label>
+    </div>
+
+    <div class="total">Celkem: <span id="total-amount">0</span> Kč</div>
+
+    <div id="qr-container">
+        <p id="qr-placeholder">Zaškrtni aspoň jednu položku...</p>
+        <img id="qr-code" src="" alt="Platební QR kód">
+    </div>
+
+    <div class="iban-info">
+        Číslo účtu: CZ11 6210 6701 0022 0036 4123<br>
+        Zpráva: Narozeniny
+    </div>
+</div>
+
+<script>
+    const checkboxes = document.querySelectorAll('.part');
+    const totalDisplay = document.getElementById('total-amount');
+    const qrImage = document.getElementById('qr-code');
+    const qrPlaceholder = document.getElementById('qr-placeholder');
+
+    const IBAN = "CZ1162106701002200364123";
+    const MSG = "Narozeniny";
+
+    function updateView() {
+        let total = 0;
+        checkboxes.forEach(cb => {
+            if (cb.checked) total += parseInt(cb.dataset.price);
+        });
+
+        totalDisplay.innerText = total;
+
+        if (total > 0) {
+            // Použijeme API pro generování českého QR kódu (SPAYD)
+            const qrUrl = `https://api.paylibo.com/paylibo/generator/czech/image?accountNumber=${IBAN}&amount=${total}&currency=CZK&message=${encodeURIComponent(MSG)}`;
+            qrImage.src = qrUrl;
+            qrImage.style.display = 'block';
+            qrPlaceholder.style.display = 'none';
+        } else {
+            qrImage.style.display = 'none';
+            qrPlaceholder.style.display = 'block';
+        }
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener('change', updateView));
+</script>
+
+</body>
+</html>

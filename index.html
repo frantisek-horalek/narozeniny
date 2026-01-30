@@ -3,81 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dárek k narozeninám</title>
+    <title>Dárek k narozeninám - Fanatec</title>
     <style>
-        body { font-family: sans-serif; background: #f4f4f9; display: flex; justify-content: center; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 500px; text-align: center; }
-        img { max-width: 100%; border-radius: 10px; margin-bottom: 20px; }
-        .items { text-align: left; margin: 20px 0; }
-        .item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
-        .item:hover { background: #f9f9f9; }
-        .total { font-size: 1.5em; font-weight: bold; margin: 20px 0; color: #2c3e50; }
-        #qr-container { margin-top: 20px; min-height: 250px; }
-        #qr-code { max-width: 250px; display: none; margin: 0 auto; }
-        .iban-info { font-size: 0.8em; color: #666; margin-top: 10px; word-break: break-all; }
-        input[type="checkbox"] { transform: scale(1.5); }
+        :root {
+            --highlight-color: rgba(52, 152, 219, 0.5); /* Barva zvýraznění při výběru (modrá poloprůhledná) */
+            --hover-color: rgba(52, 152, 219, 0.2); /* Barva při najetí myší */
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eceff1; display: flex; justify-content: center; padding: 20px; color: #37474f; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); max-width: 600px; text-align: center; }
+        h2 { margin-bottom: 10px; color: #263238; }
+        p.intro { margin-bottom: 25px; color: #78909c; }
+        
+        /* SVG STYLY */
+        .svg-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+        }
+        svg { display: block; width: 100%; height: auto; }
+        
+        /* Interaktivní části */
+        .interactive-part {
+            fill: transparent; /* Ve výchozím stavu průhledné */
+            stroke: none;
+            cursor: pointer;
+            transition: fill 0.3s ease;
+        }
+        .interactive-part:hover {
+            fill: var(--hover-color); /* Barva při najetí myší */
+        }
+        .interactive-part.selected {
+            fill: var(--highlight-color); /* Barva po kliknutí (vybráno) */
+            stroke: #3498db;
+            stroke-width: 2px;
+        }
+
+        /* Ostatní styly (suma, QR) */
+        .total-box { background: #f5f7f9; padding: 15px; border-radius: 12px; margin: 20px 0; }
+        .total { font-size: 1.8em; font-weight: bold; color: #2c3e50; }
+        #qr-container { margin-top: 20px; min-height: 220px; display: flex; justify-content: center; align-items: center; border: 2px dashed #cfd8dc; border-radius: 12px; }
+        #qr-code { max-width: 200px; display: none; }
+        #qr-placeholder { color: #b0bec5; font-style: italic; }
+        .iban-info { font-size: 0.85em; color: #90a4ae; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eceff1; line-height: 1.6; }
+        .selected-items-list { text-align: left; margin-bottom: 10px; font-size: 0.9em; color: #546e7a; min-height: 1.2em;}
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>Příspěvek na Fanatec set 🏎️</h2>
-    <p>Vyber si, kterou část mi chceš "koupit", a aplikace ti vygeneruje QR platbu.</p>
+    <h2>Příspěvek na Fanatec setup 🏎️</h2>
+    <p class="intro">Klikni přímo na část obrázku, kterou mi chceš "koupit".</p>
     
-    <img src="obrazek.jpg" alt="Fanatec Gift">
+    <div class="svg-container">
+        <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+            <image href="obrazek.jpg" x="0" y="0" height="800" width="1200"/>
+            
+            <path class="interactive-part" data-price="500" data-name="Volant GT3" 
+                  d="M 600,180 a 220,220 0 1,0 1,440 a 220,220 0 1,0 -1,-440 z" />
+                  
+            <path class="interactive-part" data-price="400" data-name="Direct Drive Základna" 
+                  d="M 750,350 L 1050,330 L 1080,550 L 780,600 L 700,500 Z" />
+                  
+            <path class="interactive-part" data-price="300" data-name="Sada pedálů" 
+                  d="M 150,450 L 450,450 L 550,750 L 50,750 Z" />
 
-    <div class="items">
-        <label class="item"><input type="checkbox" class="part" data-price="500"> <span>Volant GT3 (500 Kč)</span></label>
-        <label class="item"><input type="checkbox" class="part" data-price="400"> <span>Základna Direct Drive (400 Kč)</span></label>
-        <label class="item"><input type="checkbox" class="part" data-price="300"> <span>Sada pedálů (300 Kč)</span></label>
-        <label class="item"><input type="checkbox" class="part" data-price="200"> <span>Tlačítka a pádla (200 Kč)</span></label>
-        <label class="item"><input type="checkbox" class="part" data-price="100"> <span>Stolní svorka (100 Kč)</span></label>
+            <path class="interactive-part" data-price="200" data-name="Ovladače a pádla (Levá)" 
+                  d="M 420,350 L 520,350 L 520,480 L 420,480 Z" />
+            <path class="interactive-part" data-price="200" data-name="Ovladače a pádla (Pravá)" 
+                  d="M 680,350 L 780,350 L 780,480 L 680,480 Z" />
+
+            <path class="interactive-part" data-price="100" data-name="Stolní svorka" 
+                  d="M 780,600 L 1080,550 L 1050,680 L 850,720 Z" />
+                  
+        </svg>
     </div>
 
-    <div class="total">Celkem: <span id="total-amount">0</span> Kč</div>
+    <div class="total-box">
+        <div class="selected-items-list" id="selected-list">Zatím nic nevybráno...</div>
+        <div class="total">Celkem: <span id="total-amount">0</span> Kč</div>
+    </div>
 
     <div id="qr-container">
-        <p id="qr-placeholder">Zaškrtni aspoň jednu položku...</p>
+        <p id="qr-placeholder">Klikni na obrázek a vyber části...</p>
         <img id="qr-code" src="" alt="Platební QR kód">
     </div>
 
     <div class="iban-info">
-        Číslo účtu: CZ11 6210 6701 0022 0036 4123<br>
-        Zpráva: Narozeniny
+        Pro jistotu: CZ11 6210 6701 0022 0036 4123 (Zpráva: Narozeniny)
     </div>
 </div>
 
 <script>
-    const checkboxes = document.querySelectorAll('.part');
+    const parts = document.querySelectorAll('.interactive-part');
     const totalDisplay = document.getElementById('total-amount');
     const qrImage = document.getElementById('qr-code');
     const qrPlaceholder = document.getElementById('qr-placeholder');
+    const selectedList = document.getElementById('selected-list');
 
     const IBAN = "CZ1162106701002200364123";
     const MSG = "Narozeniny";
 
     function updateView() {
         let total = 0;
-        checkboxes.forEach(cb => {
-            if (cb.checked) total += parseInt(cb.dataset.price);
+        let selectedNames = [];
+
+        // Projdeme všechny části a zjistíme, které mají třídu 'selected'
+        parts.forEach(part => {
+            if (part.classList.contains('selected')) {
+                total += parseInt(part.dataset.price);
+                selectedNames.push(part.dataset.name);
+            }
         });
 
+        // Aktualizace textů
         totalDisplay.innerText = total;
+        if (selectedNames.length > 0) {
+            selectedList.innerText = "Vybráno: " + selectedNames.join(", ");
+        } else {
+            selectedList.innerText = "Zatím nic nevybráno...";
+        }
 
+        // Aktualizace QR kódu
         if (total > 0) {
-            // Použijeme API pro generování českého QR kódu (SPAYD)
+            // Využíváme externí API pro generování SPAYD (český QR standard)
             const qrUrl = `https://api.paylibo.com/paylibo/generator/czech/image?accountNumber=${IBAN}&amount=${total}&currency=CZK&message=${encodeURIComponent(MSG)}`;
             qrImage.src = qrUrl;
-            qrImage.style.display = 'block';
-            qrPlaceholder.style.display = 'none';
-        } else {
-            qrImage.style.display = 'none';
-            qrPlaceholder.style.display = 'block';
-        }
-    }
-
-    checkboxes.forEach(cb => cb.addEventListener('change', updateView));
-</script>
-
-</body>
-</html>
+            qrImage.style.display

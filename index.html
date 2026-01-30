@@ -3,99 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fanatec - Nastavení zón</title>
+    <title>Dárek pro mě!</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; text-align: center; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        body { font-family: sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: #2d2d2d; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
-        /* Debug info - ukazuje souřadnice */
-        #debug-info { background: #333; color: #0f0; padding: 10px; margin-bottom: 10px; font-family: monospace; border-radius: 5px; }
-
-        .svg-wrapper { position: relative; width: 100%; border: 2px solid #ddd; line-height: 0; }
+        .svg-box { position: relative; width: 100%; border: 1px solid #444; border-radius: 10px; overflow: hidden; background: #000; }
         svg { width: 100%; height: auto; display: block; }
 
-        /* Styl pro zóny */
-        .zone {
-            fill: rgba(255, 0, 0, 0.3); /* ČERVENÁ PRO LADĚNÍ - pak změníme na transparent */
+        /* Styl oblastí */
+        .area {
+            fill: rgba(255, 0, 0, 0.3); /* ČERVENÁ - zatím nevybráno */
             stroke: red;
-            stroke-width: 2;
+            stroke-width: 1;
             cursor: pointer;
-            transition: 0.2s;
+            pointer-events: all; /* Zajišťuje, že oblast zachytí kliknutí */
+            transition: 0.3s;
         }
-        .zone.selected {
-            fill: rgba(0, 255, 0, 0.5) !important; /* ZELENÁ PŘI VYBRÁNÍ */
-            stroke: green;
+        
+        /* Styl po kliknutí */
+        .area.active {
+            fill: rgba(0, 255, 0, 0.4) !important; /* ZELENÁ - vybráno */
+            stroke: #00ff00;
+            stroke-width: 3;
         }
-        .zone:hover { fill: rgba(255, 0, 0, 0.5); }
 
-        .total { font-size: 2em; font-weight: bold; margin: 20px 0; }
-        #qr-code { max-width: 200px; margin-top: 10px; display: none; margin-left: auto; margin-right: auto; }
+        .info-panel { margin-top: 20px; padding: 20px; background: #3d3d3d; border-radius: 15px; }
+        .total-amount { font-size: 2.5em; font-weight: bold; color: #00ff00; margin: 10px 0; }
+        
+        #qr-code { 
+            background: white; 
+            padding: 10px; 
+            border-radius: 10px; 
+            margin-top: 15px; 
+            display: none; 
+            margin-left: auto; 
+            margin-right: auto;
+            max-width: 220px;
+        }
+
+        .details { font-size: 0.9em; color: #aaa; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="debug-info">Klikni na obrázek pro souřadnice: X: 0, Y: 0</div>
-    
-    <div class="svg-wrapper">
-        <svg viewBox="0 0 1000 667" id="main-svg">
+    <h2>Můj narozeninový Fanatec 🏁</h2>
+    <p>Klikni na části, na které mi chceš přispět:</p>
+
+    <div class="svg-box">
+        <svg viewBox="0 0 1000 667" id="gift-svg">
             <image href="obrazek.jpg" x="0" y="0" width="1000" height="667" />
             
-            <path class="zone" data-price="500" data-name="Volant" 
-                  d="M 450,150 L 650,150 L 650,550 L 450,550 Z" />
-            
-            <path class="zone" data-price="300" data-name="Pedály" 
-                  d="M 150,450 L 450,450 L 550,650 L 50,650 Z" />
-
-            <path class="zone" data-price="400" data-name="Základna" 
-                  d="M 650,300 L 950,300 L 950,550 L 650,600 Z" />
-        </svg>
-    </div>
-
-    <div class="total">Celkem: <span id="total-val">0</span> Kč</div>
-    <img id="qr-code" src="" alt="QR Platba">
-</div>
-
-<script>
-    const svg = document.getElementById('main-svg');
-    const debugInfo = document.getElementById('debug-info');
-    const totalVal = document.getElementById('total-val');
-    const qrImg = document.getElementById('qr-code');
-    const IBAN = "CZ1162106701002200364123";
-
-    // 1. Získávání souřadnic při kliknutí (pro tvoji potřebu ladění)
-    svg.addEventListener('click', (e) => {
-        const pt = svg.createSVGPoint();
-        pt.x = e.clientX;
-        pt.y = e.clientY;
-        const cursorpt = pt.matrixTransform(svg.getScreenCTM().inverse());
-        debugInfo.innerText = `Poslední klik: X: ${Math.round(cursorpt.x)}, Y: ${Math.round(cursorpt.y)}`;
-    });
-
-    // 2. Logika výběru
-    document.querySelectorAll('.zone').forEach(zone => {
-        zone.addEventListener('click', function(e) {
-            e.stopPropagation(); // Aby se nespouštělo kliknutí na pozadí
-            this.classList.toggle('selected');
-            calculate();
-        });
-    });
-
-    function calculate() {
-        let sum = 0;
-        document.querySelectorAll('.zone.selected').forEach(z => {
-            sum += parseInt(z.dataset.price);
-        });
-        totalVal.innerText = sum;
-
-        if (sum > 0) {
-            qrImg.src = `https://api.paylibo.com/paylibo/generator/czech/image?accountNumber=${IBAN}&amount=${sum}&currency=CZK&message=Narozeniny`;
-            qrImg.style.display = 'block';
-        } else {
-            qrImg.style.display = 'none';
-        }
-    }
-</script>
-
-</body>
-</html>
+            <path class="area" data-price="500" data-name="Volant" d="M 450,150 L 650,150 L 650,550 L 450,550 Z" />
+            <path class="area" data-price="300" data-name="Pedály" d="M 150,450 L 450,450 L 550,650 L 50,650 Z" />
+            <path class="area" data-price="400" data-name="Základna" d

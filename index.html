@@ -2,29 +2,42 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <title>Fanatec Birthday - Local QR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fanatec Birthday - Volant</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body { font-family: sans-serif; background: #1a1a1a; color: white; text-align: center; margin: 0; padding: 20px; }
-        .main-card { max-width: 800px; margin: auto; background: #262626; padding: 20px; border-radius: 15px; }
-        .gift-wrapper { position: relative; display: inline-block; width: 100%; line-height: 0; }
-        .gift-image { width: 100%; height: auto; border-radius: 8px; }
         
+        .main-card { 
+            display: inline-block;
+            margin: auto; background: #262626; padding: 20px; border-radius: 15px; 
+        }
+        
+        .gift-wrapper { position: relative; display: inline-block; line-height: 0; width: 100%; }
+        
+        /* Obrázek se zobrazí ve své přirozené velikosti */
+        .gift-image { 
+            width: 100%; height: auto; 
+            border-radius: 8px; display: block;
+        }
+        
+        /* Styly zón */
         .zone {
             position: absolute; box-sizing: border-box;
+            /* Nechávám je zatím viditelné pro kontrolu pozice */
             border: 2px solid rgba(255, 0, 0, 0.5); background: rgba(255, 0, 0, 0.1);
             cursor: pointer; z-index: 100; transition: 0.3s;
         }
+        /* Po kliknutí zezelenají */
         .zone.selected { border-color: #00ff00; background: rgba(0, 255, 0, 0.3); }
 
         .price-display { font-size: 3em; color: #00ff00; margin: 20px 0; }
         
-        /* Box pro QR kód */
         #qr-container { 
             background: white; padding: 20px; border-radius: 10px; 
-            display: none; margin: 20px auto; max-width: 256px; 
+            display: none; margin: 20px auto; width: 256px;
         }
-        #qrcode { margin: auto; } /* Sem se vykreslí QR kód */
+        #qrcode { margin: auto; }
         
         .footer { color: #888; font-size: 0.9em; margin-top: 20px; }
     </style>
@@ -33,21 +46,22 @@
 
 <div class="main-card">
     <h2>Vyber mi část dárku! 🏎️</h2>
+    <p>Klikni na tlačítka "Přidej!" nebo "Brzdi!" v obrázku.</p>
     
     <div class="gift-wrapper">
-        <img src="obrazek.jpg" class="gift-image" alt="Dárek">
+        <img src="volant.jpg" class="gift-image" alt="Fanatec Setup">
 
-        <div class="zone" data-price="500" style="top: 20%; left: 42%; width: 25%; height: 40%;"></div>
-        <div class="zone" data-price="300" style="top: 60%; left: 15%; width: 30%; height: 30%;"></div>
-        <div class="zone" data-price="400" style="top: 35%; left: 65%; width: 25%; height: 35%;"></div>
-        <div class="zone" data-price="100" style="top: 30%; left: 45%; width: 5%; height: 10%;"></div>
+        <div class="zone" data-price="1000" style="top: 22%; left: 75%; width: 18%; height: 7%;"></div>
+        
+        <div class="zone" data-price="500" style="top: 85%; left: 65%; width: 18%; height: 7%;"></div>
+        
     </div>
 
     <div class="price-display"><span id="total">0</span> Kč</div>
     
     <div id="qr-container">
         <div id="qrcode"></div>
-        <p style="color: black; font-size: 12px; margin-top: 10px;">Naskenuj v bankovní aplikaci</p>
+        <p style="color: black; font-size: 12px; margin-top: 10px; margin-bottom: 0;">Naskenuj v bankovní aplikaci</p>
     </div>
 
     <div class="footer">
@@ -65,7 +79,7 @@
     const IBAN = "CZ1162106701002200364123";
     const MSG = "Narozeniny";
 
-    // Inicializace generátoru (knihovna QRCode.js)
+    // Inicializace lokálního generátoru
     const qrGenerator = new QRCode(qrcodeDiv, {
         width: 256,
         height: 256,
@@ -86,16 +100,13 @@
             totalEl.innerText = sum;
 
             if (sum > 0) {
-                // Sestavení řetězce podle českého standardu SPAYD
-                // Formát: SPD*1.0*ACC:IBAN*AM:ČÁSTKA*CC:MĚNA*MSG:ZPRÁVA
+                // Český standard SPAYD
                 const spayd = `SPD*1.0*ACC:${IBAN}*AM:${sum}.00*CC:CZK*MSG:${MSG}`;
                 
-                // Vygenerování kódu z řetězce
                 qrGenerator.clear(); 
                 qrGenerator.makeCode(spayd);
                 
                 qrContainer.style.display = 'block';
-                console.log("Generuji lokální QR pro: " + spayd);
             } else {
                 qrContainer.style.display = 'none';
             }

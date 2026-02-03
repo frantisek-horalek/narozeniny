@@ -3,26 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fanatec Birthday - Increment App</title>
+    <title>Fanatec Birthday App</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body, html {
             height: 100%; margin: 0; padding: 0;
-            background: #1a1a1a; color: white;
-            font-family: sans-serif;
+            background: #111; color: white;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             display: flex; flex-direction: column;
             justify-content: center; align-items: center;
-            text-align: center;
+            text-align: center; overflow: hidden;
         }
 
-        .header { flex: 0 0 auto; padding: 10px; }
+        .header { flex: 0 0 auto; padding: 10px; z-index: 5; }
 
+        /* Kontejner s obrázkem */
         .gift-wrapper {
             position: relative;
             display: inline-block;
             line-height: 0;
-            max-height: 70vh; max-width: 95vw;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            max-height: 75vh; max-width: 98vw;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            border-radius: 4px; overflow: hidden;
         }
 
         .gift-image {
@@ -30,56 +32,63 @@
             max-width: 100%; max-height: 100%;
         }
 
-        /* --- CENA V TACHOMETRU --- */
+        /* --- OPRAVENÉ: CENA V TACHOMETRU --- */
         .price-display-in-image {
             position: absolute;
-            z-index: 20;
+            z-index: 30;
             color: #00ff00;
-            font-weight: bold;
+            font-weight: 900;
             text-align: center;
             white-space: nowrap;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+            text-shadow: 0 0 10px rgba(0,0,0,1), 2px 2px 5px rgba(0,0,0,1);
             
-            /* Horizontální střed tachometru */
-            left: 16.5%; 
+            /* Střed tachometru posunut více doprava */
+            left: 23%; 
             /* Vertikální střed mezi textem a spodkem budíku */
-            top: 89%;  
+            top: 89.5%;  
             
             transform: translate(-50%, -50%);
-            font-size: clamp(1em, 4vw, 2.5em);
-            pointer-events: none; /* Aby nebránilo klikání pod sebe */
+            /* Dynamická velikost, aby se to do budíku vždy vešlo */
+            font-size: clamp(1.2em, 6vw, 3.2em);
+            pointer-events: none;
+            letter-spacing: 1px;
         }
 
-        /* TLAČÍTKA (ZÓNY) */
+        /* TLAČÍTKA (Nyní neviditelná) */
         .btn-zone {
-            position: absolute; box-sizing: border-box;
-            border: 2px solid rgba(255, 255, 255, 0.2); 
-            background: rgba(255, 255, 255, 0.05);
-            cursor: pointer; z-index: 10; transition: 0.1s;
+            position: absolute;
+            cursor: pointer;
+            z-index: 40;
+            /* Ladící rámečky jsou pryč, zbývá jen kurzor */
+            background: transparent;
+            border: none;
+            -webkit-tap-highlight-color: transparent; /* Odstraní modrý záblesk na mobilu */
         }
-        /* Efekt stisknutí */
+        
+        /* Jemná vizuální odezva při stisku pro uživatele */
         .btn-zone:active {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(0.98);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .ui-footer {
-            flex: 0 0 auto; padding: 15px; width: 100%; box-sizing: border-box;
+            flex: 0 0 auto; padding: 10px; width: 100%; box-sizing: border-box;
         }
 
         #qr-container {
-            background: white; padding: 10px; border-radius: 10px;
-            display: none; margin: 0 auto 10px auto; width: 160px;
+            background: white; padding: 12px; border-radius: 12px;
+            display: none; margin: 5px auto; width: 150px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
         #qrcode img { margin: auto; }
-        .iban-info { color: #888; font-size: 0.8em; }
+        
+        .iban-info { color: #666; font-size: 0.75em; margin-top: 5px; }
+        strong { color: #aaa; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h2 style="margin: 5px 0;">Sestav mi dárek! 🏎️</h2>
-        <p style="margin: 0; font-size: 0.9em; color: #bbb;">Použij tlačítka v obrázku pro nastavení částky</p>
+        <h2 style="margin: 0; font-style: italic; letter-spacing: 1px;">PŘISPEJ NA SETUPE! 🏁</h2>
     </div>
 
     <div class="gift-wrapper">
@@ -89,19 +98,19 @@
             <span id="total">0</span> Kč
         </div>
 
-        <div id="btn-add" class="btn-zone" style="top: 23%; left: 74%; width: 20%; height: 7%;"></div>
+        <div id="btn-add" class="btn-zone" style="top: 20%; left: 73%; width: 22%; height: 10%;"></div>
         
-        <div id="btn-sub" class="btn-zone" style="top: 84%; left: 63%; width: 22%; height: 8%;"></div>
+        <div id="btn-sub" class="btn-zone" style="top: 82%; left: 61%; width: 24%; height: 12%;"></div>
     </div>
 
     <div class="ui-footer">
         <div id="qr-container">
             <div id="qrcode"></div>
-            <p style="color: black; font-size: 10px; margin: 5px 0 0 0;">Naskenuj a zaplať</p>
+            <p style="color: #333; font-size: 9px; margin: 8px 0 0 0; font-weight: bold; text-transform: uppercase;">Naskenuj a zaplať</p>
         </div>
 
         <div class="iban-info">
-            CZ11 6210 6701 0022 0036 4123 (Narozeniny)
+            <strong>Účet:</strong> CZ11 6210 6701 0022 0036 4123 | <strong>Zpráva:</strong> Narozeniny
         </div>
     </div>
 
@@ -114,17 +123,18 @@
     const IBAN = "CZ1162106701002200364123";
     const MSG = "Narozeniny";
 
-    // Inicializace QR generátoru
+    // Inicializace QR generátoru (velikost upravena pro mobil)
     const qrGenerator = new QRCode(qrcodeDiv, {
-        width: 160, height: 160,
+        width: 150, height: 150,
         colorDark : "#000000", colorLight : "#ffffff",
         correctLevel : QRCode.CorrectLevel.M
     });
 
     function updateDisplay() {
-        totalEl.innerText = currentTotal;
+        totalEl.innerText = currentTotal.toLocaleString('cs-CZ');
 
         if (currentTotal > 0) {
+            // Formát SPAYD pro české banky
             const spayd = `SPD*1.0*ACC:${IBAN}*AM:${currentTotal}.00*CC:CZK*MSG:${MSG}`;
             qrGenerator.clear(); 
             qrGenerator.makeCode(spayd);
@@ -134,17 +144,16 @@
         }
     }
 
-    // Logika tlačítek
-    document.getElementById('btn-add').onclick = function() {
+    // Obsluha tlačítek
+    document.getElementById('btn-add').addEventListener('click', function() {
         currentTotal += 100;
         updateDisplay();
-    };
+    });
 
-    document.getElementById('btn-sub').onclick = function() {
-        // Sníží o 100, ale nepustí pod nulu
+    document.getElementById('btn-sub').addEventListener('click', function() {
         currentTotal = Math.max(0, currentTotal - 100);
         updateDisplay();
-    };
+    });
 </script>
 
 </body>

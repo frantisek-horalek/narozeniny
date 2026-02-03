@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fanatec Birthday HUD - Full Sound Experience</title>
+    <title>Fanatec Birthday HUD - Final Sound</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body, html {
@@ -15,7 +15,7 @@
             overflow: hidden;
         }
 
-        /* --- KONTEJNER ZAROVNANÝ NA ŠÍŘKU OBRÁZKU --- */
+        /* --- OBAL PRO ZAROVNÁNÍ HLAVIČKY S OBRÁZKEM --- */
         .app-container {
             display: inline-block;
             max-width: 98vw;
@@ -38,6 +38,7 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
 
+        /* Hlavní kontejner s obrázkem */
         .gift-wrapper {
             position: relative;
             display: inline-block;
@@ -52,7 +53,7 @@
             max-width: 100%; max-height: 100%;
         }
 
-        /* --- TACHOMETR (PŘESNĚ VYCENTROVÁN) --- */
+        /* --- TACHOMETR (OPRAVENO NA STŘED) --- */
         .price-display {
             position: absolute;
             z-index: 50;
@@ -60,26 +61,26 @@
             font-weight: 900;
             text-align: center;
             text-shadow: 0 0 15px rgba(0,0,0,1), 2px 2px 5px rgba(0,0,0,1);
-            left: 19%; /* Vycentrováno na budík */
+            left: 19.5%; /* Posunuto doleva na střed budíku */
             top: 89.5%;  
             transform: translate(-50%, -50%);
             font-size: clamp(1.2em, 5vw, 3em);
             pointer-events: none;
         }
 
-        /* --- QR KÓD A TEXT (LAYOUT) --- */
+        /* --- QR KÓD (OPRAVENÁ POZICE) --- */
         #qr-overlay {
             position: absolute;
             z-index: 60;
             bottom: 4%; 
-            left: 64%; /* Bezpečný odstup */
+            left: 58%; /* Posunuto doleva pro odstup od tachometru */
             transform: translateX(-50%);
             display: none; 
             flex-direction: row;
             align-items: flex-end;
             gap: 20px;
             width: auto;
-            max-width: 42%;
+            max-width: 45%;
         }
 
         #qrcode-box {
@@ -107,6 +108,7 @@
         }
         .account-number:hover { opacity: 0.8; }
 
+        /* --- TLAČÍTKA --- */
         .btn-zone {
             position: absolute; cursor: pointer;
             z-index: 70; background: transparent;
@@ -170,10 +172,34 @@
     const IBAN = "CZ1162106701002200364123";
     const MSG = "Narozeniny";
 
-    // --- NASTAVENÍ ZVUKŮ ---
-    // Zde doplň názvy souborů, které nahraješ na GitHub ve stejné složce jako index.html
-    const soundGas = new Audio('motor.mp3'); 
-    const soundBrake = new Audio('smyk.mp3');
+    // --- SYNTÉZA ZVUKŮ (Web Audio API) ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        if (type === 'gas') {
+            // Simulace vytočení motoru
+            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.5);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+        } else {
+            // Simulace smyku (šum / pískot)
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        }
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.5);
+    }
 
     const qrGenerator = new QRCode(qrcodeDiv, {
         width: 190, height: 190,
@@ -200,16 +226,8 @@
         });
     }
 
-    // --- FUNKCE PRO ZMĚNU ČÁSTKY A PŘEHRÁNÍ ZVUKU ---
     function modifyAmount(value) {
-        if (value > 0) {
-            soundGas.currentTime = 0; // Reset na začátek, aby šlo klikat rychle za sebou
-            soundGas.play();
-        } else if (value < 0 && currentTotal > 0) {
-            soundBrake.currentTime = 0;
-            soundBrake.play();
-        }
-        
+        if (value > 0) playSound('gas'); else playSound('brake');
         currentTotal = Math.max(0, currentTotal + value);
         updateDisplay();
     }

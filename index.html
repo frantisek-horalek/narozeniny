@@ -3,92 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fanatec Birthday - Fit to Screen</title>
+    <title>Fanatec Birthday - Tachometer Price</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        /* Nastavení stránky na plnou výšku a centrování */
+        /* Základní nastavení stránky na střed */
         body, html {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            background: #1a1a1a;
-            color: white;
+            height: 100%; margin: 0; padding: 0;
+            background: #1a1a1a; color: white;
             font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center; /* Vertikální střed */
-            align-items: center; /* Horizontální střed */
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
             text-align: center;
         }
 
-        .header {
-            flex: 0 0 auto; /* Pevná výška pro hlavičku */
-            padding: 10px;
-        }
+        .header { flex: 0 0 auto; padding: 10px; }
 
-        /* Hlavní wrapper, který omezuje velikost obrázku */
+        /* Hlavní wrapper obrázku */
         .gift-wrapper {
             position: relative;
-            display: inline-block; /* Důležité: obalí přesně obrázek */
+            display: inline-block;
             line-height: 0;
-            /* KLÍČOVÉ: Omezení, aby se obrázek vždy vešel na obrazovku i s UI */
-            max-height: 70vh; /* Maximálně 70% výšky okna */
-            max-width: 95vw;  /* Maximálně 95% šířky okna */
+            /* Omezení, aby se obrázek vždy vešel na obrazovku i s UI */
+            max-height: 70vh; max-width: 95vw;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
-        /* Obrázek se přizpůsobí wrapperu a zachová poměr stran */
         .gift-image {
-            display: block;
-            width: auto;
-            height: auto;
-            max-width: 100%;
-            max-height: 100%;
+            display: block; width: auto; height: auto;
+            max-width: 100%; max-height: 100%;
         }
 
-        /* Klikatelné zóny - procenta teď fungují dokonale */
-        .zone {
+        /* --- NOVÉ: Styl pro cenu uvnitř obrázku --- */
+        .price-display-in-image {
             position: absolute;
-            box-sizing: border-box;
-            border: 2px solid rgba(255, 0, 0, 0.4); /* Pro kontrolu nechávám viditelné */
-            background: rgba(255, 0, 0, 0.1);
-            cursor: pointer;
-            z-index: 10;
-            transition: 0.2s;
-        }
-
-        .zone.selected {
-            border-color: #00ff00;
-            background: rgba(0, 255, 0, 0.3);
-        }
-
-        /* Spodní panel s cenou a QR kódem */
-        .ui-footer {
-            flex: 0 0 auto; /* Pevná výška pro patičku */
-            padding: 15px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .price-display {
-            font-size: 2em;
-            color: #00ff00;
+            z-index: 20; /* Musí být nad obrázkem */
+            color: #00ff00; /* Zelená barva */
             font-weight: bold;
-            margin-bottom: 10px;
+            text-align: center;
+            white-space: nowrap; /* Aby se text nezalamoval */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8); /* Stín pro lepší čitelnost na pozadí */
+            
+            /* POZICE V TACHOMETRU */
+            /* Odhadnutý střed tachometru horizontálně */
+            left: 16%; 
+            /* Vertikální pozice mezi "Kč/dárek" a spodkem */
+            top: 89%;  
+            
+            /* Triky pro přesné vycentrování na daných souřadnicích */
+            transform: translate(-50%, -50%);
+            
+            /* Dynamická velikost písma: min 1em, ideálně 4% šířky, max 2.5em */
+            font-size: clamp(1em, 4vw, 2.5em);
+        }
+
+        /* Klikatelné zóny */
+        .zone {
+            position: absolute; box-sizing: border-box;
+            border: 2px solid rgba(255, 0, 0, 0.4); /* Pro kontrolu viditelné */
+            background: rgba(255, 0, 0, 0.1);
+            cursor: pointer; z-index: 10; transition: 0.2s;
+        }
+        .zone.selected { border-color: #00ff00; background: rgba(0, 255, 0, 0.3); }
+
+        /* Spodní panel už obsahuje jen QR a IBAN */
+        .ui-footer {
+            flex: 0 0 auto; padding: 15px; width: 100%; box-sizing: border-box;
         }
 
         #qr-container {
-            background: white;
-            padding: 10px;
-            border-radius: 10px;
-            display: none;
-            margin: 10px auto;
-            width: 180px; /* Fixní šířka QR kódu */
+            background: white; padding: 10px; border-radius: 10px;
+            display: none; margin: 0 auto 10px auto; width: 180px;
         }
-
         #qrcode img { margin: auto; }
-
-        .iban-info { color: #888; font-size: 0.8em; margin-top: 10px; }
+        .iban-info { color: #888; font-size: 0.8em; }
     </style>
 </head>
 <body>
@@ -100,15 +87,16 @@
 
     <div class="gift-wrapper">
         <img src="volant.jpg" class="gift-image" alt="Fanatec Setup">
+        
+        <div class="price-display-in-image">
+            <span id="total">0</span> Kč
+        </div>
 
         <div class="zone" data-price="1000" style="top: 23%; left: 74%; width: 20%; height: 7%;"></div>
-        
         <div class="zone" data-price="500" style="top: 84%; left: 63%; width: 22%; height: 8%;"></div>
     </div>
 
     <div class="ui-footer">
-        <div class="price-display"><span id="total">0</span> Kč</div>
-        
         <div id="qr-container">
             <div id="qrcode"></div>
             <p style="color: black; font-size: 10px; margin: 5px 0 0 0;">Naskenuj v bankovní aplikaci</p>
@@ -117,10 +105,3 @@
         <div class="iban-info">
             CZ11 6210 6701 0022 0036 4123 (Zpráva: Narozeniny)
         </div>
-    </div>
-
-<script>
-    const zones = document.querySelectorAll('.zone');
-    const totalEl = document.getElementById('total');
-    const qrContainer = document.getElementById('qr-container');
-    const qrcodeDiv = document.

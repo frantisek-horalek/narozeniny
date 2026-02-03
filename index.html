@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fanatec Birthday - Tachometer Price</title>
+    <title>Fanatec Birthday - Increment App</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        /* Základní nastavení stránky na střed */
         body, html {
             height: 100%; margin: 0; padding: 0;
             background: #1a1a1a; color: white;
@@ -18,12 +17,10 @@
 
         .header { flex: 0 0 auto; padding: 10px; }
 
-        /* Hlavní wrapper obrázku */
         .gift-wrapper {
             position: relative;
             display: inline-block;
             line-height: 0;
-            /* Omezení, aby se obrázek vždy vešel na obrazovku i s UI */
             max-height: 70vh; max-width: 95vw;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
@@ -33,46 +30,46 @@
             max-width: 100%; max-height: 100%;
         }
 
-        /* --- NOVÉ: Styl pro cenu uvnitř obrázku --- */
+        /* --- CENA V TACHOMETRU --- */
         .price-display-in-image {
             position: absolute;
-            z-index: 20; /* Musí být nad obrázkem */
-            color: #00ff00; /* Zelená barva */
+            z-index: 20;
+            color: #00ff00;
             font-weight: bold;
             text-align: center;
-            white-space: nowrap; /* Aby se text nezalamoval */
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8); /* Stín pro lepší čitelnost na pozadí */
+            white-space: nowrap;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
             
-            /* POZICE V TACHOMETRU */
-            /* Odhadnutý střed tachometru horizontálně */
-            left: 16%; 
-            /* Vertikální pozice mezi "Kč/dárek" a spodkem */
+            /* Horizontální střed tachometru */
+            left: 16.5%; 
+            /* Vertikální střed mezi textem a spodkem budíku */
             top: 89%;  
             
-            /* Triky pro přesné vycentrování na daných souřadnicích */
             transform: translate(-50%, -50%);
-            
-            /* Dynamická velikost písma: min 1em, ideálně 4% šířky, max 2.5em */
             font-size: clamp(1em, 4vw, 2.5em);
+            pointer-events: none; /* Aby nebránilo klikání pod sebe */
         }
 
-        /* Klikatelné zóny */
-        .zone {
+        /* TLAČÍTKA (ZÓNY) */
+        .btn-zone {
             position: absolute; box-sizing: border-box;
-            border: 2px solid rgba(255, 0, 0, 0.4); /* Pro kontrolu viditelné */
-            background: rgba(255, 0, 0, 0.1);
-            cursor: pointer; z-index: 10; transition: 0.2s;
+            border: 2px solid rgba(255, 255, 255, 0.2); 
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer; z-index: 10; transition: 0.1s;
         }
-        .zone.selected { border-color: #00ff00; background: rgba(0, 255, 0, 0.3); }
+        /* Efekt stisknutí */
+        .btn-zone:active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0.98);
+        }
 
-        /* Spodní panel už obsahuje jen QR a IBAN */
         .ui-footer {
             flex: 0 0 auto; padding: 15px; width: 100%; box-sizing: border-box;
         }
 
         #qr-container {
             background: white; padding: 10px; border-radius: 10px;
-            display: none; margin: 0 auto 10px auto; width: 180px;
+            display: none; margin: 0 auto 10px auto; width: 160px;
         }
         #qrcode img { margin: auto; }
         .iban-info { color: #888; font-size: 0.8em; }
@@ -82,7 +79,7 @@
 
     <div class="header">
         <h2 style="margin: 5px 0;">Sestav mi dárek! 🏎️</h2>
-        <p style="margin: 0; font-size: 0.9em; color: #bbb;">Klikni na tlačítka v obrázku</p>
+        <p style="margin: 0; font-size: 0.9em; color: #bbb;">Použij tlačítka v obrázku pro nastavení částky</p>
     </div>
 
     <div class="gift-wrapper">
@@ -92,16 +89,63 @@
             <span id="total">0</span> Kč
         </div>
 
-        <div class="zone" data-price="1000" style="top: 23%; left: 74%; width: 20%; height: 7%;"></div>
-        <div class="zone" data-price="500" style="top: 84%; left: 63%; width: 22%; height: 8%;"></div>
+        <div id="btn-add" class="btn-zone" style="top: 23%; left: 74%; width: 20%; height: 7%;"></div>
+        
+        <div id="btn-sub" class="btn-zone" style="top: 84%; left: 63%; width: 22%; height: 8%;"></div>
     </div>
 
     <div class="ui-footer">
         <div id="qr-container">
             <div id="qrcode"></div>
-            <p style="color: black; font-size: 10px; margin: 5px 0 0 0;">Naskenuj v bankovní aplikaci</p>
+            <p style="color: black; font-size: 10px; margin: 5px 0 0 0;">Naskenuj a zaplať</p>
         </div>
 
         <div class="iban-info">
-            CZ11 6210 6701 0022 0036 4123 (Zpráva: Narozeniny)
+            CZ11 6210 6701 0022 0036 4123 (Narozeniny)
         </div>
+    </div>
+
+<script>
+    let currentTotal = 0;
+    const totalEl = document.getElementById('total');
+    const qrContainer = document.getElementById('qr-container');
+    const qrcodeDiv = document.getElementById('qrcode');
+    
+    const IBAN = "CZ1162106701002200364123";
+    const MSG = "Narozeniny";
+
+    // Inicializace QR generátoru
+    const qrGenerator = new QRCode(qrcodeDiv, {
+        width: 160, height: 160,
+        colorDark : "#000000", colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.M
+    });
+
+    function updateDisplay() {
+        totalEl.innerText = currentTotal;
+
+        if (currentTotal > 0) {
+            const spayd = `SPD*1.0*ACC:${IBAN}*AM:${currentTotal}.00*CC:CZK*MSG:${MSG}`;
+            qrGenerator.clear(); 
+            qrGenerator.makeCode(spayd);
+            qrContainer.style.display = 'block';
+        } else {
+            qrContainer.style.display = 'none';
+        }
+    }
+
+    // Logika tlačítek
+    document.getElementById('btn-add').onclick = function() {
+        currentTotal += 100;
+        updateDisplay();
+    };
+
+    document.getElementById('btn-sub').onclick = function() {
+        // Sníží o 100, ale nepustí pod nulu
+        currentTotal = Math.max(0, currentTotal - 100);
+        updateDisplay();
+    };
+</script>
+
+</body>
+</html>

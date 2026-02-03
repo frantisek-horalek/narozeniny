@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fanatec Birthday HUD - Final</title>
+    <title>Fanatec Birthday HUD - Final v2</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body, html {
             height: 100%; margin: 0; padding: 0;
             background: #0a0a0a; color: white;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             overflow: hidden;
@@ -46,74 +46,85 @@
             pointer-events: none;
         }
 
-        /* --- QR KÓD A TEXT UVNITŘ OBRÁZKU --- */
+        /* --- HLAVNÍ KONTEJNER PRO QR A TEXT --- */
         #qr-overlay {
             position: absolute;
             z-index: 60;
             bottom: 4%; 
-            left: 55%; /* Posunuto o 5 % doprava od středu */
+            left: 62%; /* Zvětšen odstup od tachometru */
             transform: translateX(-50%);
+            /* Pozadí a stíny odstraněny odsud, přesunuty na #qrcode-box */
+            
+            display: none; /* Přepínáno skriptem */
+            flex-direction: row;
+            align-items: flex-end; /* Zarovnání textu ke spodku QR boxu */
+            gap: 25px;
+            width: max-content;
+            max-width: 65%;
+        }
+
+        /* Nový obal jen pro QR kód (bílá krabička) */
+        #qrcode-box {
             background: rgba(255, 255, 255, 0.95);
             padding: 15px;
             border-radius: 12px;
-            display: none; /* Skrytý při nule */
             box-shadow: 0 0 25px rgba(0,0,0,0.8);
-            
-            /* Layout pro QR vlevo a text vpravo */
-            display: none; /* Přepínáno skriptem */
-            flex-direction: row;
-            align-items: center;
-            gap: 20px;
-            max-width: 500px;
+            flex-shrink: 0;
         }
+        #qrcode img { margin: auto; display: block; }
 
-        #qrcode { flex-shrink: 0; }
-        #qrcode img { margin: auto; }
-
+        /* --- STYLING TEXTU INSTRUKCÍ --- */
         .qr-text {
-            color: #222;
-            font-size: 13px;
+            color: white; /* Bílý text */
+            font-weight: bold; /* Tučný text */
+            font-size: clamp(12px, 2vw, 15px); /* Dynamická velikost pro čitelnost */
             line-height: 1.4;
-            text-align: left;
+            text-align: left; /* Zarovnání doleva */
+            /* Jemný černý stín pro kontrast vůči podlaze */
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
+            padding-bottom: 5px; /* Drobný odstup od úplného spodku */
         }
 
         .account-number {
             font-weight: bold;
-            color: #007bff;
+            color: #4db8ff; /* Světle modrá pro lepší kontrast na tmavém */
             cursor: pointer;
             text-decoration: underline;
             padding: 2px 4px;
             border-radius: 4px;
             transition: background 0.2s;
         }
-        .account-number:hover { background: #e7f3ff; }
+        .account-number:hover { background: rgba(255,255,255,0.1); }
 
-        /* --- TLAČÍTKA (ZÓNY) --- */
+        /* --- TLAČÍTKA --- */
         .btn-zone {
             position: absolute;
             cursor: pointer;
             z-index: 70;
             background: transparent;
             -webkit-tap-highlight-color: transparent;
-            /* Pro kontrolu můžeš přidat border: 1px solid red; */
         }
 
         .copy-toast {
-            position: absolute;
+            position: fixed; /* Fixní pozice vůči oknu */
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
             background: rgba(0,0,0,0.8);
             color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 11px;
-            bottom: 40px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 100;
             display: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h2 style="margin: 0; font-style: italic; color: #444;">PŘISPĚJ NA SETUP!</h2>
+        <h2 style="margin: 0; font-style: italic; color: #444; text-shadow: 0 1px 1px rgba(255,255,255,0.1);">PŘISPĚJ NA SETUP!</h2>
     </div>
 
     <div class="gift-wrapper">
@@ -128,15 +139,21 @@
         <div id="btn-sub" class="btn-zone" style="top: 70%; left: 74%; width: 22%; height: 8%;"></div>
 
         <div id="qr-overlay">
-            <div id="qrcode"></div>
+            <div id="qrcode-box">
+                <div id="qrcode"></div>
+            </div>
+            
             <div class="qr-text">
-                QR kód k naskenování z bankovní aplikace. Nebo použijte převod na účet: 
-                <span class="account-number" onclick="copyToClipboard('670100-2200364123/6210')" title="Kliknutím zkopírujete">670100-2200364123/6210</span>. 
+                QR kód k naskenování z bankovní aplikace. Nebo použijte převod na účet:
+                <br>
+                <span class="account-number" onclick="copyToClipboard('670100-2200364123/6210')" title="Kliknutím zkopírujete">670100-2200364123/6210</span>
+                <br>
                 Pro milovníky bankovek je tu i možnost předat je v obálce osobně :o)
-                <div id="toast" class="copy-toast">Číslo účtu zkopírováno!</div>
             </div>
         </div>
     </div>
+    
+    <div id="toast" class="copy-toast">Číslo účtu zkopírováno!</div>
 
 <script>
     let currentTotal = 0;
@@ -148,7 +165,6 @@
     const IBAN = "CZ1162106701002200364123";
     const MSG = "Narozeniny";
 
-    // Inicializace QR (zvětšeno o cca třetinu na 190)
     const qrGenerator = new QRCode(qrcodeDiv, {
         width: 190, height: 190,
         colorDark : "#000000", colorLight : "#ffffff",
@@ -171,7 +187,7 @@
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(() => {
             toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 2000);
+            setTimeout(() => { toast.style.display = 'none'; }, 2500);
         });
     }
 

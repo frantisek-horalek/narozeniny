@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fanatec Birthday HUD - Final Sounds</title>
+    <title>Fanatec Birthday HUD - Mobile Optimized</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body, html {
@@ -15,7 +15,7 @@
             overflow: hidden;
         }
 
-        /* --- HLAVIČKA NAD OBRÁZKEM --- */
+        /* --- HLAVIČKA --- */
         .header-container {
             width: 100%;
             max-width: 98vw;
@@ -56,7 +56,7 @@
             max-width: 100%; max-height: 100%;
         }
 
-        /* --- TACHOMETR (22.5%) --- */
+        /* --- TACHOMETR (NASTAVENO NA 21%) --- */
         .price-display {
             position: absolute;
             z-index: 50;
@@ -111,6 +111,29 @@
         }
         .account-number:hover { opacity: 0.8; }
 
+        /* --- MOBILNÍ ÚPRAVY --- */
+        @media (max-width: 768px) {
+            .price-display {
+                font-size: clamp(0.8em, 7vw, 1.5em); /* Menší text na mobilu */
+            }
+            #qr-overlay {
+                max-width: 55%;
+                left: 62%; /* Jemný posun pro mobil */
+                gap: 10px;
+            }
+            #qrcode-box {
+                padding: 8px;
+            }
+            /* Vynucení menší velikosti QR kódu na mobilu */
+            #qrcode img, #qrcode canvas {
+                width: 130px !important;
+                height: 130px !important;
+            }
+            .account-number {
+                font-size: 150%; /* Na mobilu stačí 1.5x zvětšení */
+            }
+        }
+
         .btn-zone {
             position: absolute;
             cursor: pointer;
@@ -120,18 +143,12 @@
         }
 
         .copy-toast {
-            position: fixed;
-            left: 50%;
-            bottom: 30px;
+            position: fixed; left: 50%; bottom: 30px;
             transform: translateX(-50%);
-            background: rgba(0,255,0,0.9);
-            color: black;
-            font-weight: bold;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-size: 14px;
-            z-index: 200;
-            display: none;
+            background: rgba(0,255,0,0.9); color: black;
+            font-weight: bold; padding: 10px 20px;
+            border-radius: 30px; font-size: 14px;
+            z-index: 200; display: none;
         }
     </style>
 </head>
@@ -183,7 +200,6 @@
     const IBAN = "CZ1162106701002200364123";
     const MSG = "Narozeniny";
 
-    // --- NAČTENÍ TVÝCH WAV SOUBORŮ ---
     const soundPlyn = new Audio('plyn.wav');
     const soundBrzda = new Audio('brzda.wav');
 
@@ -213,7 +229,6 @@
         });
     }
 
-    // --- UPRAVENÁ FUNKCE S TVÝMI ZVUKY ---
     function modifyAmount(value) {
         if (value > 0) {
             soundPlyn.currentTime = 0;
@@ -227,11 +242,8 @@
         updateDisplay();
     }
 
-    // První a Třetí (plyn.wav)
     document.getElementById('btn-add-1').onclick = () => modifyAmount(100);
     document.getElementById('btn-gas').onclick = () => modifyAmount(100);
-
-    // Druhá a Čtvrtá (brzda.wav)
     document.getElementById('btn-sub-1').onclick = () => modifyAmount(-100);
     document.getElementById('btn-brake').onclick = () => modifyAmount(-100);
 </script>

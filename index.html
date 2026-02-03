@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fanatec Birthday HUD - Perfect Alignment</title>
+    <title>Fanatec Birthday HUD - Final Sounds</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body, html {
@@ -15,35 +15,38 @@
             overflow: hidden;
         }
 
-        /* --- NOVÝ FIX: Tabulkové zobrazení vynutí šířku textu dle obrázku --- */
-        .app-container {
-            display: table; 
-            margin: auto;
-            max-width: 98vw;
-        }
-
+        /* --- HLAVIČKA NAD OBRÁZKEM --- */
         .header-container {
-            display: table-caption; /* Klíčové: text se zalomí podle šířky těla tabulky (obrázku) */
-            caption-side: top;
-            padding: 10px 0 15px 0;
-            text-align: center;
+            width: 100%;
+            max-width: 98vw;
+            display: flex;
+            justify-content: center;
+            z-index: 100;
         }
 
-        .header-container h1 {
+        .header-content {
+            flex: 0 1 auto;
+            width: max-content;
+            max-width: 100%;
+            padding: 10px 0 15px 0;
+        }
+
+        .header-content h1 {
             margin: 0;
             color: white;
             font-size: clamp(1.1em, 2.5vw, 1.8em);
             font-style: italic;
+            text-align: center;
             line-height: 1.2;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
 
-        /* Hlavní kontejner s obrázkem (tělo tabulky) */
+        /* Hlavní kontejner s obrázkem */
         .gift-wrapper {
             position: relative;
-            display: block; /* V tabulkovém kontejneru se chová jako tělo */
+            display: inline-block;
             line-height: 0;
-            max-height: 75vh;
+            max-height: 75vh; max-width: 98vw;
             box-shadow: 0 0 50px rgba(0,0,0,1);
             border-radius: 8px; overflow: hidden;
         }
@@ -53,7 +56,7 @@
             max-width: 100%; max-height: 100%;
         }
 
-        /* --- TACHOMETR (Ponecháno 22.5%) --- */
+        /* --- TACHOMETR (22.5%) --- */
         .price-display {
             position: absolute;
             z-index: 50;
@@ -68,7 +71,7 @@
             pointer-events: none;
         }
 
-        /* --- QR KÓD A TEXT (Ponecháno 64%) --- */
+        /* --- QR KÓD (64%) --- */
         #qr-overlay {
             position: absolute;
             z-index: 60;
@@ -108,7 +111,6 @@
         }
         .account-number:hover { opacity: 0.8; }
 
-        /* --- TLAČÍTKA (ZÓNY) --- */
         .btn-zone {
             position: absolute;
             cursor: pointer;
@@ -118,47 +120,53 @@
         }
 
         .copy-toast {
-            position: fixed; left: 50%; bottom: 30px;
+            position: fixed;
+            left: 50%;
+            bottom: 30px;
             transform: translateX(-50%);
-            background: rgba(0,255,0,0.9); color: black;
-            font-weight: bold; padding: 10px 20px;
-            border-radius: 30px; font-size: 14px;
-            z-index: 200; display: none;
+            background: rgba(0,255,0,0.9);
+            color: black;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 200;
+            display: none;
         }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <div class="header-container">
+    <div class="header-container">
+        <div class="header-content">
             <h1>Přátelé, vysnil jsem si tuto sestavu volantu s pedály a stojanem. Budu moc rád, když mi pomůžete k tomu mému půlstoletí ten sen splnit :o)</h1>
         </div>
+    </div>
 
-        <div class="gift-wrapper">
-            <img src="volant.jpg" class="gift-image" alt="Fanatec Setup">
-            
-            <div class="price-display">
-                <span id="total">0</span> Kč
+    <div class="gift-wrapper">
+        <img src="volant.jpg" class="gift-image" alt="Fanatec Setup">
+        
+        <div class="price-display">
+            <span id="total">0</span> Kč
+        </div>
+
+        <div id="btn-add-1" class="btn-zone" style="top: 20%; left: 74%; width: 22%; height: 8%;"></div>
+        <div id="btn-sub-1" class="btn-zone" style="top: 70%; left: 74%; width: 22%; height: 8%;"></div>
+
+        <div id="btn-gas" class="btn-zone" style="top: 51%; left: 55%; width: 6%; height: 12%;"></div>
+        <div id="btn-brake" class="btn-zone" style="top: 50%; left: 48%; width: 6%; height: 8%;"></div>
+
+        <div id="qr-overlay">
+            <div id="qrcode-box">
+                <div id="qrcode"></div>
             </div>
-
-            <div id="btn-add-1" class="btn-zone" style="top: 20%; left: 74%; width: 22%; height: 8%;"></div>
-            <div id="btn-sub-1" class="btn-zone" style="top: 70%; left: 74%; width: 22%; height: 8%;"></div>
-
-            <div id="btn-gas" class="btn-zone" style="top: 51%; left: 55%; width: 6%; height: 12%;"></div>
-            <div id="btn-brake" class="btn-zone" style="top: 50%; left: 48%; width: 6%; height: 8%;"></div>
-
-            <div id="qr-overlay">
-                <div id="qrcode-box">
-                    <div id="qrcode"></div>
-                </div>
-                
-                <div class="qr-text">
-                    QR kód k naskenování z bankovní aplikace. Nebo použijte převod na účet:
-                    <br>
-                    <span class="account-number" onclick="copyToClipboard('670100-2200364123/6210')" title="Kliknutím zkopírujete">670100-2200364123/6210</span>
-                    <br>
-                    Pro milovníky bankovek je tu i možnost předat je v obálce osobně :o)
-                </div>
+            
+            <div class="qr-text">
+                QR kód k naskenování z bankovní aplikace. Nebo použijte převod na účet:
+                <br>
+                <span class="account-number" onclick="copyToClipboard('670100-2200364123/6210')" title="Kliknutím zkopírujete">670100-2200364123/6210</span>
+                <br>
+                Pro milovníky bankovek je tu i možnost předat je v obálce osobně :o)
             </div>
         </div>
     </div>
@@ -174,6 +182,10 @@
     
     const IBAN = "CZ1162106701002200364123";
     const MSG = "Narozeniny";
+
+    // --- NAČTENÍ TVÝCH WAV SOUBORŮ ---
+    const soundPlyn = new Audio('plyn.wav');
+    const soundBrzda = new Audio('brzda.wav');
 
     const qrGenerator = new QRCode(qrcodeDiv, {
         width: 190, height: 190,
@@ -201,14 +213,26 @@
         });
     }
 
+    // --- UPRAVENÁ FUNKCE S TVÝMI ZVUKY ---
     function modifyAmount(value) {
+        if (value > 0) {
+            soundPlyn.currentTime = 0;
+            soundPlyn.play();
+        } else if (value < 0 && currentTotal > 0) {
+            soundBrzda.currentTime = 0;
+            soundBrzda.play();
+        }
+        
         currentTotal = Math.max(0, currentTotal + value);
         updateDisplay();
     }
 
+    // První a Třetí (plyn.wav)
     document.getElementById('btn-add-1').onclick = () => modifyAmount(100);
-    document.getElementById('btn-sub-1').onclick = () => modifyAmount(-100);
     document.getElementById('btn-gas').onclick = () => modifyAmount(100);
+
+    // Druhá a Čtvrtá (brzda.wav)
+    document.getElementById('btn-sub-1').onclick = () => modifyAmount(-100);
     document.getElementById('btn-brake').onclick = () => modifyAmount(-100);
 </script>
 

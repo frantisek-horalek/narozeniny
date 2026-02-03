@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fanatec Birthday HUD - Final Sound</title>
+    <title>Fanatec Birthday HUD - Perfect Alignment</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body, html {
@@ -15,17 +15,20 @@
             overflow: hidden;
         }
 
-        /* --- OBAL PRO ZAROVNÁNÍ HLAVIČKY S OBRÁZKEM --- */
-        .app-container {
-            display: inline-block;
+        /* --- HLAVIČKA NAD OBRÁZKEM (ZAROVNANÁ NA ŠÍŘKU) --- */
+        .header-container {
+            width: 100%;
             max-width: 98vw;
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            z-index: 100;
         }
 
         .header-content {
-            width: 100%;
-            padding: 0 0 15px 0;
-            box-sizing: border-box;
+            flex: 0 1 auto;
+            width: max-content;
+            max-width: 100%;
+            padding: 10px 0 15px 0;
         }
 
         .header-content h1 {
@@ -43,7 +46,7 @@
             position: relative;
             display: inline-block;
             line-height: 0;
-            max-height: 75vh;
+            max-height: 75vh; max-width: 98vw;
             box-shadow: 0 0 50px rgba(0,0,0,1);
             border-radius: 8px; overflow: hidden;
         }
@@ -53,7 +56,7 @@
             max-width: 100%; max-height: 100%;
         }
 
-        /* --- TACHOMETR (OPRAVENO NA STŘED) --- */
+        /* --- TACHOMETR (VYCENTROVANÁ ČÁSTKA) --- */
         .price-display {
             position: absolute;
             z-index: 50;
@@ -61,26 +64,27 @@
             font-weight: 900;
             text-align: center;
             text-shadow: 0 0 15px rgba(0,0,0,1), 2px 2px 5px rgba(0,0,0,1);
-            left: 19.5%; /* Posunuto doleva na střed budíku */
+            /* Vyladěno pro horizontální střed budíku */
+            left: 22.5%; 
             top: 89.5%;  
             transform: translate(-50%, -50%);
             font-size: clamp(1.2em, 5vw, 3em);
             pointer-events: none;
         }
 
-        /* --- QR KÓD (OPRAVENÁ POZICE) --- */
+        /* --- QR KÓD A TEXT (POSUNUTO O 10% DOLEVA) --- */
         #qr-overlay {
             position: absolute;
             z-index: 60;
             bottom: 4%; 
-            left: 58%; /* Posunuto doleva pro odstup od tachometru */
+            left: 64%; /* Posunuto o 10 % doleva z původních 74 % */
             transform: translateX(-50%);
             display: none; 
             flex-direction: row;
             align-items: flex-end;
             gap: 20px;
             width: auto;
-            max-width: 45%;
+            max-width: 42%;
         }
 
         #qrcode-box {
@@ -93,113 +97,99 @@
         #qrcode img { margin: auto; display: block; }
 
         .qr-text {
-            color: white; font-weight: bold;
+            color: white;
+            font-weight: bold;
             font-size: clamp(10px, 1.4vw, 13px);
-            line-height: 1.3; text-align: left;
+            line-height: 1.3;
+            text-align: left;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
-            padding-bottom: 5px; overflow-wrap: break-word;
+            padding-bottom: 5px;
+            overflow-wrap: break-word;
         }
 
         .account-number {
-            display: inline-block; font-size: 200%; 
-            color: #b3e5fc; cursor: pointer;
-            text-decoration: underline; margin: 5px 0;
+            display: inline-block;
+            font-size: 200%; 
+            color: #b3e5fc; 
+            cursor: pointer;
+            text-decoration: underline;
+            margin: 5px 0;
             transition: opacity 0.2s;
         }
         .account-number:hover { opacity: 0.8; }
 
-        /* --- TLAČÍTKA --- */
+        /* --- TLAČÍTKA (ZÓNY) --- */
         .btn-zone {
-            position: absolute; cursor: pointer;
-            z-index: 70; background: transparent;
+            position: absolute;
+            cursor: pointer;
+            z-index: 70;
+            background: transparent;
             -webkit-tap-highlight-color: transparent;
         }
 
         .copy-toast {
-            position: fixed; left: 50%; bottom: 30px;
+            position: fixed;
+            left: 50%;
+            bottom: 30px;
             transform: translateX(-50%);
-            background: rgba(0,255,0,0.9); color: black;
-            font-weight: bold; padding: 10px 20px;
-            border-radius: 30px; font-size: 14px;
-            z-index: 200; display: none;
+            background: rgba(0,255,0,0.9);
+            color: black;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 200;
+            display: none;
         }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
+    <div class="header-container">
         <div class="header-content">
             <h1>Přátelé, vysnil jsem si tuto sestavu volantu s pedály a stojanem. Budu moc rád, když mi pomůžete k tomu mému půlstoletí ten sen splnit :o)</h1>
         </div>
+    </div>
 
-        <div class="gift-wrapper">
-            <img src="volant.jpg" class="gift-image" alt="Fanatec Setup">
-            
-            <div class="price-display">
-                <span id="total">0</span> Kč
+    <div class="gift-wrapper">
+        <img src="volant.jpg" class="gift-image" alt="Fanatec Setup">
+        
+        <div class="price-display">
+            <span id="total">0</span> Kč
+        </div>
+
+        <div id="btn-add-1" class="btn-zone" style="top: 20%; left: 74%; width: 22%; height: 8%;"></div>
+        <div id="btn-sub-1" class="btn-zone" style="top: 70%; left: 74%; width: 22%; height: 8%;"></div>
+
+        <div id="btn-gas" class="btn-zone" style="top: 51%; left: 55%; width: 6%; height: 12%;"></div>
+        <div id="btn-brake" class="btn-zone" style="top: 50%; left: 48%; width: 6%; height: 8%;"></div>
+
+        <div id="qr-overlay">
+            <div id="qrcode-box">
+                <div id="qrcode"></div>
             </div>
-
-            <div id="btn-add-1" class="btn-zone" style="top: 20%; left: 74%; width: 22%; height: 8%;"></div>
-            <div id="btn-sub-1" class="btn-zone" style="top: 70%; left: 74%; width: 22%; height: 8%;"></div>
-
-            <div id="btn-gas" class="btn-zone" style="top: 51%; left: 55%; width: 6%; height: 12%;"></div>
-            <div id="btn-brake" class="btn-zone" style="top: 50%; left: 48%; width: 6%; height: 8%;"></div>
-
-            <div id="qr-overlay">
-                <div id="qrcode-box">
-                    <div id="qrcode"></div>
-                </div>
-                
-                <div class="qr-text">
-                    QR kód k naskenování z bankovní aplikace. Nebo použijte převod na účet:
-                    <br>
-                    <span class="account-number" onclick="copyToClipboard('670100-2200364123/6210')" title="Kliknutím zkopírujete">670100-2200364123/6210</span>
-                    <br>
-                    Pro milovníky bankovek je tu i možnost předat je v obálce osobně :o)
-                </div>
+            
+            <div class="qr-text">
+                QR kód k naskenování z bankovní aplikace. Nebo použijte převod na účet:
+                <br>
+                <span class="account-number" onclick="copyToClipboard('670100-2200364123/6210')" title="Kliknutím zkopírujete">670100-2200364123/6210</span>
+                <br>
+                Pro milovníky bankovek je tu i možnost předat je v obálce osobně :o)
             </div>
         </div>
     </div>
     
-    <div id="toast" class="copy-toast">Účet zkopírován!</div>
+    <div id="toast" class="copy-toast">Účet zkopírován do schránky!</div>
 
 <script>
     let currentTotal = 0;
     const totalEl = document.getElementById('total');
     const qrOverlay = document.getElementById('qr-overlay');
     const qrcodeDiv = document.getElementById('qrcode');
+    const toast = document.getElementById('toast');
     
     const IBAN = "CZ1162106701002200364123";
     const MSG = "Narozeniny";
-
-    // --- SYNTÉZA ZVUKŮ (Web Audio API) ---
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-    function playSound(type) {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-
-        if (type === 'gas') {
-            // Simulace vytočení motoru
-            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.5);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-        } else {
-            // Simulace smyku (šum / pískot)
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.3);
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-        }
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.5);
-    }
 
     const qrGenerator = new QRCode(qrcodeDiv, {
         width: 190, height: 190,
@@ -209,6 +199,7 @@
 
     function updateDisplay() {
         totalEl.innerText = currentTotal.toLocaleString('cs-CZ');
+
         if (currentTotal > 0) {
             const spayd = `SPD*1.0*ACC:${IBAN}*AM:${currentTotal}.00*CC:CZK*MSG:${MSG}`;
             qrGenerator.clear(); 
@@ -221,13 +212,12 @@
 
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(() => {
-            document.getElementById('toast').style.display = 'block';
-            setTimeout(() => { document.getElementById('toast').style.display = 'none'; }, 2000);
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2000);
         });
     }
 
     function modifyAmount(value) {
-        if (value > 0) playSound('gas'); else playSound('brake');
         currentTotal = Math.max(0, currentTotal + value);
         updateDisplay();
     }

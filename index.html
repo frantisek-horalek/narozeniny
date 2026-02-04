@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fanatec Birthday HUD - Master Fixed</title>
+    <title>Fanatec Birthday HUD - Mobile Final v2</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body, html {
@@ -67,11 +67,12 @@
             left: 21%; 
             top: 89.5%;  
             transform: translate(-50%, -50%);
-            font-size: clamp(1em, 5vw, 2.5em);
+            /* Nastaveno na 0.5em jako spodní hranice */
+            font-size: clamp(0.5em, 5vw, 2.5em);
             pointer-events: none;
         }
 
-        /* --- QR OVERLAY --- */
+        /* --- QR OVERLAY (PC) --- */
         #qr-overlay {
             position: absolute;
             z-index: 60;
@@ -103,7 +104,6 @@
             padding-bottom: 5px; overflow-wrap: break-word;
         }
 
-        /* Dynamický textový přepínač */
         .dynamic-intro:before {
             content: "QR kód k naskenování z bankovní aplikace. Nebo použijte převod na účet:";
         }
@@ -116,25 +116,25 @@
         }
         .account-number:hover { opacity: 0.8; }
 
-        /* --- MOBILNÍ FIX (BEZ QR) --- */
+        /* --- MOBILNÍ FIX (vpravo dole, max 50% šířka) --- */
         @media (max-width: 768px) {
-            #qrcode-box { display: none !important; } /* Skryje QR i bílou krabičku */
+            #qrcode-box { display: none !important; }
             
             #qr-overlay {
-                left: 50%; /* Na mobilu bez QR boxu vycentrovat */
-                width: 90%;
-                max-width: 90%;
+                left: auto; /* Zrušíme centrování z minula */
+                right: 4%;  /* Ukotvíme vpravo */
+                transform: none;
+                width: auto;
+                max-width: 50%; /* Maximálně polovina šířky */
             }
 
-            .qr-text { text-align: center; }
+            .qr-text { text-align: right; } /* Text zarovnáme doprava k okraji */
 
             .dynamic-intro:before {
-                content: "Prosím o zaslání převodem na účet:"; /* Nový text pro mobil */
+                content: "Prosím o zaslání převodem na účet:";
             }
 
-            .price-display {
-                font-size: clamp(0.7em, 5vw, 1.2em);
-            }
+            /* Tachometr na mobilu neřešíme přes clamp, ten už je v základu agresivní */
         }
 
         .btn-zone {

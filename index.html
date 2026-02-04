@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fanatec Birthday HUD - Mobile Final</title>
+    <title>Fanatec Birthday HUD - Mobile Text Special</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body, html {
@@ -67,12 +67,11 @@
             left: 21%; 
             top: 89.5%;  
             transform: translate(-50%, -50%);
-            /* Výchozí velikost pro PC */
             font-size: clamp(1em, 5vw, 2.5em);
             pointer-events: none;
         }
 
-        /* --- QR KÓD (64%) --- */
+        /* --- QR OVERLAY (PC VERZE) --- */
         #qr-overlay {
             position: absolute;
             z-index: 60;
@@ -104,6 +103,8 @@
             padding-bottom: 5px; overflow-wrap: break-word;
         }
 
+        .mobile-text { display: none; } /* Výchozí skrytí mobilního textu */
+
         .account-number {
             display: inline-block; font-size: 200%; 
             color: #b3e5fc; cursor: pointer;
@@ -112,30 +113,31 @@
         }
         .account-number:hover { opacity: 0.8; }
 
-        /* --- AGRESIVNÍ MOBILNÍ ÚPRAVY --- */
+        /* --- MOBILNÍ ÚPRAVY (BEZ QR) --- */
         @media (max-width: 768px) {
-            .price-display {
-                /* Výrazné zmenšení písma v tachometru na mobilu */
-                font-size: clamp(0.7em, 5vw, 1.2em);
-            }
+            #qrcode-box { display: none !important; } /* Žádné QR ani rámeček */
+            
+            .desktop-text { display: none; }
+            .mobile-text { display: inline; } /* Zobrazení specifického textu */
+
             #qr-overlay {
-                max-width: 65%; /* Více místa pro text vedle menšího QR */
-                left: 60%;
-                gap: 8px; /* Menší mezera */
+                left: 50%; /* Na mobilu bez QR boxu vycentrujeme text na střed */
+                width: 90%;
+                max-width: 90%;
+                justify-content: center;
             }
-            #qrcode-box {
-                padding: 6px; /* Menší rámeček */
-            }
-            /* Vynucení výrazně menší velikosti QR kódu na mobilu (100px) */
-            #qrcode img, #qrcode canvas {
-                width: 100px !important;
-                height: 100px !important;
-            }
+
             .qr-text {
-                 font-size: clamp(9px, 1.2vw, 11px); /* Menší text instrukcí */
+                text-align: center; /* Na mobilu text na střed */
+                font-size: 11px;
             }
+
             .account-number {
-                font-size: 140%; /* Menší číslo účtu */
+                font-size: 160%;
+            }
+
+            .price-display {
+                font-size: clamp(0.7em, 5vw, 1.2em);
             }
         }
 
@@ -147,111 +149,4 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        .copy-toast {
-            position: fixed; left: 50%; bottom: 30px;
-            transform: translateX(-50%);
-            background: rgba(0,255,0,0.9); color: black;
-            font-weight: bold; padding: 10px 20px;
-            border-radius: 30px; font-size: 14px;
-            z-index: 200; display: none;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="header-container">
-        <div class="header-content">
-            <h1>Přátelé, vysnil jsem si tuto sestavu volantu s pedály a stojanem. Budu moc rád, když mi pomůžete k tomu mému půlstoletí ten sen splnit :o)</h1>
-        </div>
-    </div>
-
-    <div class="gift-wrapper">
-        <img src="volant.jpg" class="gift-image" alt="Fanatec Setup">
-        
-        <div class="price-display">
-            <span id="total">0</span> Kč
-        </div>
-
-        <div id="btn-add-1" class="btn-zone" style="top: 20%; left: 74%; width: 22%; height: 8%;"></div>
-        <div id="btn-sub-1" class="btn-zone" style="top: 70%; left: 74%; width: 22%; height: 8%;"></div>
-
-        <div id="btn-gas" class="btn-zone" style="top: 51%; left: 55%; width: 6%; height: 12%;"></div>
-        <div id="btn-brake" class="btn-zone" style="top: 50%; left: 48%; width: 6%; height: 8%;"></div>
-
-        <div id="qr-overlay">
-            <div id="qrcode-box">
-                <div id="qrcode"></div>
-            </div>
-            
-            <div class="qr-text">
-                QR kód k naskenování z bankovní aplikace. Nebo použijte převod na účet:
-                <br>
-                <span class="account-number" onclick="copyToClipboard('670100-2200364123/6210')" title="Kliknutím zkopírujete">670100-2200364123/6210</span>
-                <br>
-                Pro milovníky bankovek je tu i možnost předat je v obálce osobně :o)
-            </div>
-        </div>
-    </div>
-    
-    <div id="toast" class="copy-toast">Účet zkopírován do schránky!</div>
-
-<script>
-    let currentTotal = 0;
-    const totalEl = document.getElementById('total');
-    const qrOverlay = document.getElementById('qr-overlay');
-    const qrcodeDiv = document.getElementById('qrcode');
-    const toast = document.getElementById('toast');
-    
-    const IBAN = "CZ1162106701002200364123";
-    const MSG = "Narozeniny";
-
-    const soundPlyn = new Audio('plyn.wav');
-    const soundBrzda = new Audio('brzda.wav');
-
-    const qrGenerator = new QRCode(qrcodeDiv, {
-        width: 190, height: 190,
-        colorDark : "#000000", colorLight : "#ffffff",
-        correctLevel : QRCode.CorrectLevel.M
-    });
-
-    function updateDisplay() {
-        totalEl.innerText = currentTotal.toLocaleString('cs-CZ');
-
-        if (currentTotal > 0) {
-            const spayd = `SPD*1.0*ACC:${IBAN}*AM:${currentTotal}.00*CC:CZK*MSG:${MSG}`;
-            qrGenerator.clear(); 
-            qrGenerator.makeCode(spayd);
-            qrOverlay.style.display = 'flex';
-        } else {
-            qrOverlay.style.display = 'none';
-        }
-    }
-
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 2000);
-        });
-    }
-
-    function modifyAmount(value) {
-        if (value > 0) {
-            soundPlyn.currentTime = 0;
-            soundPlyn.play();
-        } else if (value < 0 && currentTotal > 0) {
-            soundBrzda.currentTime = 0;
-            soundBrzda.play();
-        }
-        
-        currentTotal = Math.max(0, currentTotal + value);
-        updateDisplay();
-    }
-
-    document.getElementById('btn-add-1').onclick = () => modifyAmount(100);
-    document.getElementById('btn-gas').onclick = () => modifyAmount(100);
-    document.getElementById('btn-sub-1').onclick = () => modifyAmount(-100);
-    document.getElementById('btn-brake').onclick = () => modifyAmount(-100);
-</script>
-
-</body>
-</html>
+        .copy-

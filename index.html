@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fanatec Birthday HUD - Mobile Hybrid</title>
+    <title>Fanatec Birthday HUD - Mobile Final</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body, html {
@@ -12,9 +12,7 @@
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             display: flex; flex-direction: column;
             justify-content: center; align-items: center;
-            /* Na mobilu povolíme scroll, aby byl vidět QR pod obrázkem */
-            overflow-x: hidden;
-            overflow-y: auto;
+            overflow: hidden;
         }
 
         /* --- HLAVIČKA --- */
@@ -50,7 +48,7 @@
             line-height: 0;
             max-height: 75vh; max-width: 98vw;
             box-shadow: 0 0 50px rgba(0,0,0,1);
-            border-radius: 8px;
+            border-radius: 8px; overflow: hidden;
         }
 
         .gift-image {
@@ -58,7 +56,7 @@
             max-width: 100%; max-height: 100%;
         }
 
-        /* --- TACHOMETR (PŘESNĚ 21%) --- */
+        /* --- TACHOMETR (21%) --- */
         .price-display {
             position: absolute;
             z-index: 50;
@@ -69,11 +67,12 @@
             left: 21%; 
             top: 89.5%;  
             transform: translate(-50%, -50%);
+            /* Výchozí velikost pro PC */
             font-size: clamp(1.2em, 5vw, 3em);
             pointer-events: none;
         }
 
-        /* --- QR KÓD (PC VERZE: OVERLAY) --- */
+        /* --- QR KÓD (64%) --- */
         #qr-overlay {
             position: absolute;
             z-index: 60;
@@ -113,53 +112,30 @@
         }
         .account-number:hover { opacity: 0.8; }
 
-        /* --- MOBILNÍ OPTIMALIZACE: QR POD OBRÁZEK --- */
+        /* --- AGRESIVNÍ MOBILNÍ ÚPRAVY --- */
         @media (max-width: 768px) {
-            body { justify-content: flex-start; padding: 20px 0; }
-            
             .price-display {
-                font-size: 1.1em !important; /* Opravdu malá částka */
+                /* Výrazné zmenšení písma v tachometru na mobilu */
+                font-size: clamp(0.7em, 5vw, 1.2em);
             }
-
-            .gift-wrapper {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                overflow: visible; /* Aby neutekly zóny/cena, ale QR mohl pod */
-            }
-
             #qr-overlay {
-                position: relative !important; /* Přesun pod obrázek */
-                left: auto !important;
-                bottom: auto !important;
-                transform: none !important;
-                margin-top: 25px;
-                margin-bottom: 40px;
-                flex-direction: column !important; /* QR a text pod sebou */
-                align-items: center !important;
-                text-align: center !important;
-                max-width: 90% !important;
-                background: transparent !important;
-                box-shadow: none !important;
-                gap: 15px;
+                max-width: 65%; /* Více místa pro text vedle menšího QR */
+                left: 60%;
+                gap: 8px; /* Menší mezera */
             }
-
             #qrcode-box {
-                padding: 8px;
+                padding: 6px; /* Menší rámeček */
             }
-
+            /* Vynucení výrazně menší velikosti QR kódu na mobilu (100px) */
             #qrcode img, #qrcode canvas {
-                width: 110px !important;
-                height: 110px !important;
+                width: 100px !important;
+                height: 100px !important;
             }
-
             .qr-text {
-                text-align: center !important;
-                font-size: 11px !important;
+                 font-size: clamp(9px, 1.2vw, 11px); /* Menší text instrukcí */
             }
-
             .account-number {
-                font-size: 150% !important;
+                font-size: 140%; /* Menší číslo účtu */
             }
         }
 
